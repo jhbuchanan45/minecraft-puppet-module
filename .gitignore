@@ -25,3 +25,9 @@
 .envrc
 /inventory.yaml
 /spec/fixtures/litmus_inventory.yaml
+.plan_cache.json
+.rerun.json
+.task_cache.json
+bolt-debug.log
+.modules/
+.resource_types/

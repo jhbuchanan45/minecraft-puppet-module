@@ -10,6 +10,34 @@ plan minecraft_server::install (
   TargetSpec $targets = 'localhost'
 ) {
   out::message('Hello from minecraft_server::install')
+
+  apply_prep($targets)
+
+  $out = apply($targets, _description => 'minecraft_server_install') {
+    class { 'minecraft_server' :
+      jdk_major_version => '17',
+      server_name       => 'bolt_server',
+    }
+  }
+
+  out::message($out)
+
+  # apply($targets, _description => 'java_install') {
+  #   include java
+
+  #   java::download { 'jdk16' :
+  #     version => '16',
+  #   }
+  # }
+
+  # apply($target, _description => 'java_install') {
+  #   include java
+
+  #   class { 'java' :
+  #     version => '16',
+  #     arch    => 'aarch64',
+  #   }
+  # }
   $command_result = run_command('whoami', $targets)
   return $command_result
 }

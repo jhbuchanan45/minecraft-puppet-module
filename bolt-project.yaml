@@ -1,3 +1,4 @@
 ---
 name: minecraft_server
-modules: []
+modules:
+- puppet/archive

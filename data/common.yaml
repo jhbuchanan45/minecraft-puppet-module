@@ -1,0 +1,3 @@
+minecraft_server::jdk_url: 
+  amd64: https://corretto.aws/downloads/latest/amazon-corretto-{{version}}-x64-linux-jdk.tar.gz
+  aarch64: https://corretto.aws/downloads/latest/amazon-corretto-{{version}}-aarch64-linux-jdk.tar.gz
