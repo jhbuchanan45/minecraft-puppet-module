@@ -1,0 +1,46 @@
+[Unit]
+Description=Minecraft Server %i
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/minecraft/%i
+
+User=minecraft
+Group=minecraft
+
+# Set default memory values
+Environment="MCMINMEM=2048M" "MCMAXMEM=2048M" "SHUTDOWN_DELAY=5" "POST_SHUTDOWN_DELAY=10" "JAVAPATH=java"
+# Change memory values in environment file
+EnvironmentFile=-/opt/minecraft/%i/server.conf
+
+ExecStart=/bin/sh -c \
+      '${JAVAPATH} \
+          -server \
+          -Xms${MCMINMEM} \
+          -Xmx${MCMAXMEM} \
+ 	  -XX:+UnlockExperimentalVMOptions \
+	  -XX:+AlwaysPreTouch \
+	  -XX:+DisableExplicitGC \
+          -XX:+UseG1GC \
+	  -Dsun.rmi.dgc.server.gcInterval=2147483646 \
+	  -XX:G1NewSizePercent=20 \
+	  -XX:MaxGCPauseMillis=50 \
+	  -XX:G1HeapRegionSize=32M \
+	  -XX:+ParallelRefProcEnabled \
+	  -XX:+PerfDisableSharedMem \
+	  -XX:+UseCompressedOops \
+	  -XX:-UsePerfData \
+          -XX:ParallelGCThreads=4 \
+          -XX:MinHeapFreeRatio=5 \
+          -XX:MaxHeapFreeRatio=10 \
+          -jar server_runner.jar \
+          nogui'
+
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

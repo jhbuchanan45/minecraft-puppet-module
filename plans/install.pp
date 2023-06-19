@@ -15,8 +15,11 @@ plan minecraft_server::install (
 
   $out = apply($targets, _description => 'minecraft_server_install') {
     class { 'minecraft_server' :
-      jdk_major_version => '17',
-      server_name       => 'bolt_server',
+      jdk_url          => 'https://download.oracle.com/java/17/archive/jdk-17.0.6_linux-aarch64_bin.tar.gz',
+      jdk_archive_name => 'jdk-17.0.6_linux-aarch64_bin.tar.gz',
+      server_name      => 'boltcraft',
+      server_url       => 'https://api.papermc.io/v2/projects/paper/versions/1.19.2/builds/307/downloads/paper-1.19.2-307.jar',
+      forge_install    => true,
     }
   }
 

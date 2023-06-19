@@ -2,3 +2,4 @@
 name: minecraft_server
 modules:
 - puppet/archive
+- puppet/systemd
