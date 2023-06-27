@@ -1,0 +1,2 @@
+minecraft_server::server_properties:
+  motd: Boltcraft - Configured by Puppet Bolt

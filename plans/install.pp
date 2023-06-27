@@ -18,8 +18,10 @@ plan minecraft_server::install (
       jdk_url          => 'https://download.oracle.com/java/17/archive/jdk-17.0.6_linux-aarch64_bin.tar.gz',
       jdk_archive_name => 'jdk-17.0.6_linux-aarch64_bin.tar.gz',
       server_name      => 'boltcraft',
-      server_url       => 'https://api.papermc.io/v2/projects/paper/versions/1.19.2/builds/307/downloads/paper-1.19.2-307.jar',
+      server_url       => 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.2-43.2.14/forge-1.19.2-43.2.14-installer.jar',
       forge_install    => true,
+      min_memory       => '6G',
+      max_memory       => '12G',
     }
   }
 
