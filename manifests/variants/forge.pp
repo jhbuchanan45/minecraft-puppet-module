@@ -33,6 +33,28 @@ class minecraft_server::variants::forge inherits minecraft_server {
     notify  => Service["minecraft-${server_name}"],
   }
 
+  if dir_empty('mods') {
+    file { "${server_dir}/mods":
+      ensure  => directory,
+      purge   => true,
+      recurse => true,
+      mode    => '0655',
+      owner   => 'minecraft',
+      group   => 'minecraft',
+      notify  => Service["minecraft-${server_name}"],
+    }
+  }
+
+  archive { "/tmp/${server_name}/modpack.zip":
+    ensure          => present,
+    notify          => Service["minecraft-${server_name}"],
+    source          => $modpack_url,
+    extract         => true,
+    extract_path    => "/opt/minecraft/${server_name}",
+    user            => 'minecraft',
+    group           => 'minecraft',
+  }
+
   unless dir_empty('mods') {
     file { "${server_dir}/mods":
       ensure  => directory,
@@ -44,17 +66,7 @@ class minecraft_server::variants::forge inherits minecraft_server {
       owner   => 'minecraft',
       group   => 'minecraft',
       notify  => Service["minecraft-${server_name}"],
-  } } else {
-    file { "${server_dir}/mods":
-      ensure  => directory,
-      purge   => true,
-      recurse => true,
-      mode    => '0655',
-      owner   => 'minecraft',
-      group   => 'minecraft',
-      notify  => Service["minecraft-${server_name}"],
-    }
-  }
+  } }
 
   systemd::manage_unit { "minecraft-${server_name}.service":
     notify        => Service["minecraft-${server_name}"],

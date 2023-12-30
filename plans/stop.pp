@@ -6,22 +6,16 @@
 # summary and parameters from the plan.
 # @summary A plan created with bolt plan new.
 # @param targets The targets to run on.
-plan minecraft_server::install (
+plan minecraft_server::stop (
   TargetSpec $targets = 'localhost'
 ) {
-  out::message('Hello from minecraft_server::install')
+  out::message('Hello from minecraft_server::stop')
 
   apply_prep($targets)
 
-  $out = apply($targets, _description => 'minecraft_server_install') {
-    class { 'minecraft_server' :
-      jdk_url          => 'https://download.oracle.com/java/17/archive/jdk-17.0.6_linux-aarch64_bin.tar.gz',
-      jdk_archive_name => 'jdk-17.0.6_linux-aarch64_bin.tar.gz',
-      server_name      => lookup('minecraft_server::server_name'),
-      server_url       => 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.18.2-40.2.10/forge-1.18.2-40.2.10-installer.jar',
-      forge_install    => true,
-      min_memory       => '6G',
-      max_memory       => '12G',
+  $out = apply($targets, _description => 'minecraft_server_stop') {
+    service { "minecraft-${lookup('minecraft_server::server_name')}":
+      ensure => stopped,
     }
   }
 

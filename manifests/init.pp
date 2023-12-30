@@ -8,6 +8,8 @@ class minecraft_server (
   String    $server_url,
   String    $server_name       = 'boltcraft',
   Boolean   $forge_install       = true,
+  Boolean   $forge_modpack_install = false,
+  String    $modpack_url,
   String    $max_memory         = '4G',
   String    $min_memory         = '2G',
   Tuple     $op_users = undef ,

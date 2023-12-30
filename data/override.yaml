@@ -1,5 +1,7 @@
+minecraft_server::server_name: 'dawncraft'
+
 minecraft_server::server_properties:
-  motd: Boltcraft - Configured by Puppet Bolt
+  motd: Dawncraft - Configured by Puppet Bolt
   difficulty: medium
   max-players: 20
   view-distance: 16
@@ -10,7 +12,5 @@ minecraft_server::op_users:
   - uuid: 1655a44a-a349-4137-a9d0-583c2224d916
     name: treefortmaniac7
 
-minecraft_server::modpack_url:
-
-minecraft_server::mod_urls:
-  - https://mediafilez.forgecdn.net/files/3872/808/appleskin-forge-mc1.19-2.4.2.jar
+minecraft_server::modpack_install: true
+minecraft_server::modpack_url: https://mediafilez.forgecdn.net/files/4900/525/DawnCraft+1.33_f+Serverpack.zip
