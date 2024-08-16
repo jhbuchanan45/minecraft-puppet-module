@@ -13,6 +13,6 @@ Puppet::Functions.create_function(:dir_empty) do
     module_dir = Puppet::Module.find('minecraft_server').path
     dir_path = File.join(module_dir, 'files', dirname)
 
-    Dir.empty?(dir_path)
+    return Dir.empty?(dir_path)
   end
 end

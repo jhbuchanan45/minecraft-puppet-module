@@ -9,6 +9,7 @@ class minecraft_server (
   String    $server_name       = 'boltcraft',
   Boolean   $forge_install       = true,
   Boolean   $forge_modpack_install = false,
+  Boolean   $strip_modpack_wrapper = false,
   String    $modpack_url,
   String    $max_memory         = '4G',
   String    $min_memory         = '2G',
@@ -30,11 +31,19 @@ class minecraft_server (
     groups => ['minecraft'],
   }
 
-  file { $server_dir:
+  file { '/opt/minecraft':
     ensure => directory,
     owner  => 'minecraft',
     group  => 'minecraft',
     mode   => '0754',
+  }
+
+  file { $server_dir:
+    ensure  => directory,
+    recurse => true,
+    owner   => 'minecraft',
+    group   => 'minecraft',
+    mode    => '0754',
   }
 
   # $jdk_url_template = lookup('minecraft_server::jdk_url.aarch64')
@@ -89,6 +98,33 @@ class minecraft_server (
     contain minecraft_server::variants::vanilla
   } else {
     contain minecraft_server::variants::forge
+  }
+
+  systemd::manage_unit { "minecraft-${server_name}-restart.service":
+    unit_entry    => {
+      'Description' => 'Restart minecraft server',
+    },
+    service_entry => {
+      'Type'      => 'oneshot',
+      'ExecStart' => "/bin/systemctl try-restart minecraft-${server_name}.service",
+    },
+    install_entry => {
+      'WantedBy' => 'multi-user.target',
+    },
+  }
+
+  systemd::manage_unit { "minecraft-${server_name}-restart.timer":
+    unit_entry    => {
+      'Description' => 'Timer to restart minecraft server',
+    },
+    timer_entry   => {
+      'Unit'       => "minecraft-${server_name}-restart.service",
+      'OnCalendar' => '6',
+      'Persistent' => true,
+    },
+    install_entry => {
+      'WantedBy' => 'multi-user.target',
+    },
   }
 
   service { "minecraft-${server_name}":

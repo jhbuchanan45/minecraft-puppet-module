@@ -1,6 +1,80 @@
 class minecraft_server::variants::forge inherits minecraft_server {
   $server_dir = "/opt/minecraft/${server_name}"
 
+  file { "/tmp/${server_name}":
+    ensure => directory,
+    owner  => 'minecraft',
+    group  => 'minecraft',
+    mode   => '0754',
+  }
+
+  file { "/tmp/${server_name}/wipe_mods.rb":
+    ensure  => file,
+    content => "
+    require 'fileutils'
+    if (Dir.exists?('${server_dir}/mods'))
+      FileUtils.remove_dir('${server_dir}/mods')
+    end",
+  }
+
+  exec { 'clear mods folder':
+    command => "/opt/puppetlabs/puppet/bin/ruby /tmp/${server_name}/wipe_mods.rb",
+    require => File["/tmp/${server_name}/wipe_mods.rb"],
+  }
+
+  if $modpack_url {
+    notify { 'modpack install':
+      message => 'Installing modpack',
+    }
+
+    file { "/tmp/${server_name}/modpack":
+      ensure  => directory,
+      recurse => true,
+      before  => Archive["/tmp/${server_name}/modpack.zip"],
+      purge   => true,
+      force   => true,
+      owner   => 'minecraft',
+      group   => 'minecraft',
+      mode    => '0654',
+    }
+
+    archive { "/tmp/${server_name}/modpack.zip":
+      ensure          => present,
+      before          => Exec['copy modpack server files'],
+      source          => $modpack_url,
+      extract         => true,
+      extract_path    => "/tmp/${server_name}/modpack",
+      user            => 'minecraft',
+      group           => 'minecraft',
+      cleanup         => false,
+    }
+
+    file { "/tmp/${server_name}/copy_modpack.rb":
+      ensure  => file,
+      content => "
+      require 'fileutils'
+
+      cur_directory = '/tmp/${server_name}/modpack'
+      p Dir.entries(cur_directory)
+      while Dir.entries(cur_directory).size == 3
+          subdirectory = Dir.entries(cur_directory).reject { |entry| entry == '.' || entry == '..' }.first
+          p subdirectory
+          cur_directory = File.join(cur_directory, subdirectory)
+      end
+
+      cur_directory = File.join(cur_directory, '.')
+      
+      FileUtils.cp_r(cur_directory, '${server_dir}')",
+    }
+
+    exec { 'copy modpack server files':
+      require => [File["/tmp/${server_name}/copy_modpack.rb"], Exec['clear mods folder']],
+      user    => 'minecraft',
+      group   => 'minecraft',
+      command => "/opt/puppetlabs/puppet/bin/ruby /tmp/${server_name}/copy_modpack.rb",
+    }
+  }
+
   notify { 'forge install':
     message => 'Installing forge server',
   }
@@ -33,35 +107,12 @@ class minecraft_server::variants::forge inherits minecraft_server {
     notify  => Service["minecraft-${server_name}"],
   }
 
-  if dir_empty('mods') {
-    file { "${server_dir}/mods":
-      ensure  => directory,
-      purge   => true,
-      recurse => true,
-      mode    => '0655',
-      owner   => 'minecraft',
-      group   => 'minecraft',
-      notify  => Service["minecraft-${server_name}"],
-    }
-  }
-
-  archive { "/tmp/${server_name}/modpack.zip":
-    ensure          => present,
-    notify          => Service["minecraft-${server_name}"],
-    source          => $modpack_url,
-    extract         => true,
-    extract_path    => "/opt/minecraft/${server_name}",
-    user            => 'minecraft',
-    group           => 'minecraft',
-  }
-
   unless dir_empty('mods') {
     file { "${server_dir}/mods":
       ensure  => directory,
+      # require => Exec['clear mods folder'],
       source  => 'puppet:///modules/minecraft_server/mods',
-      recurse => true,
-      replace => true,
-      purge   => true,
+      recurse => remote,
       mode    => '0655',
       owner   => 'minecraft',
       group   => 'minecraft',
