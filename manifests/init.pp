@@ -8,8 +8,9 @@ class minecraft_server (
   String    $server_url,
   String    $server_name       = 'boltcraft',
   Boolean   $forge_install       = true,
-  Boolean   $forge_modpack_install = false,
+  Boolean   $modrinth_modpack_install = false,
   Boolean   $strip_modpack_wrapper = false,
+  Boolean   $sync_mods = false,
   String    $modpack_url,
   String    $max_memory         = '4G',
   String    $min_memory         = '2G',
@@ -94,10 +95,22 @@ class minecraft_server (
     mode    => '0644',
   }
 
+  if ($modpack_url or $sync_mods) {
+    contain minecraft_server::mods::clear_mods
+  }
+
+  if ($modpack_url) {
+    contain minecraft_server::mods::sync_mods
+  }
+
   unless ($forge_install == true) {
     contain minecraft_server::variants::vanilla
   } else {
     contain minecraft_server::variants::forge
+  }
+
+  if ($sync_mods) {
+    contain minecraft_server::mods::sync_mods
   }
 
   systemd::manage_unit { "minecraft-${server_name}-restart.service":
